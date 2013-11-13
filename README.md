@@ -1,7 +1,7 @@
 Everest
 =======
 
-An android library project which does perform the network requests and parse them as well. It uses google-gson library for the parsing the json.
+An android library project which performs the network requests and parse them. It uses google-gson library for the parsing the json.
 
 It also has a sample app (Everest-Sample-Example) which demonstrate the use of this library.
 

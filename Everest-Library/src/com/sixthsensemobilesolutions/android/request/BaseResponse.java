@@ -1,5 +1,9 @@
 package com.sixthsensemobilesolutions.android.request;
 
+import java.io.InputStream;
+
+import org.apache.http.HttpResponse;
+
 import com.sixthsensemobilesolutions.android.network.NetworkRequestManager.ResponeType;
 
 public class BaseResponse<T> {
@@ -8,6 +12,8 @@ public class BaseResponse<T> {
 	private int httpResponseCode;
 
 	private ResponeType responeType;
+
+	private String errorString;
 
 	public BaseResponse() {
 
@@ -45,6 +51,14 @@ public class BaseResponse<T> {
 
 	public void setHttpResponseCode(int httpResponseCode) {
 		this.httpResponseCode = httpResponseCode;
+	}
+
+	public String getErrorString() {
+		return errorString;
+	}
+
+	public void setErrorString(String errorString) {
+		this.errorString = errorString;
 	}
 
 }

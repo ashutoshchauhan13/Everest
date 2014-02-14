@@ -34,13 +34,14 @@ public abstract class BaseRequest<T> {
 
 	public abstract String getRequestUrl();
 
-	public boolean isBasicAuthNeeded(){
+	public boolean isBasicAuthNeeded() {
 		return false;
 	}
 
 	public String getBasicAuthUserName() {
 		return null;
 	}
+
 	public String getBasicAuthPwd() {
 		return null;
 	}
@@ -58,9 +59,12 @@ public abstract class BaseRequest<T> {
 	 * @return
 	 * 
 	 * @return
+	 * 
+	 * @return
 	 */
-	public void setPostData(String postData) {
+	public BaseRequest<T> setPostData(String postData) {
 		mPostData = postData;
+		return this;
 	}
 
 	public boolean isHttpsRequest() {

@@ -25,8 +25,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int peachnote_response_progress=0x7f070001;
+        public static final int peachnote_response_progress=0x7f070002;
         public static final int peachnote_response_text=0x7f070000;
+        public static final int team_response_text=0x7f070001;
     }
     public static final class layout {
         public static final int activity_peachnote_melody_search=0x7f030000;

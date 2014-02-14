@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import org.apache.commons.io.IOUtils;
+
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Base64;
@@ -43,7 +45,7 @@ public class NetworkRequestManager {
 
 		public void onSuccess(T response);
 
-		public void onFailure(ResponeType failureType, int httpResponseCode);
+		public void onFailure(ResponeType failureType, int httpResponseCode, String errorString);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -170,6 +172,17 @@ public class NetworkRequestManager {
 				}
 				default:
 					response.setResponeType(ResponeType.REQUEST_FAILED);
+					try {
+						inputStream = httpURLConnection.getInputStream();
+					} catch (IOException exception) {
+						if (request.isHttpsRequest()) {
+							inputStream = ((HttpsURLConnection) httpURLConnection).getErrorStream();
+						} else {
+							inputStream = ((HttpURLConnection) httpURLConnection).getErrorStream();
+						}
+					}
+					String erorString = IOUtils.toString(inputStream, "UTF-8");
+					response.setErrorString(erorString);
 				}
 
 			} catch (SocketTimeoutException ex) {
@@ -177,6 +190,7 @@ public class NetworkRequestManager {
 			} catch (IOException ex) {
 				Log.d(TAG, " url = " + url + " error -" + ex.getMessage());
 				response.setResponeType(ResponeType.UNKNOWN_ERROR);
+
 			} catch (GsonParsingException ex) {
 				response.setResponeType(ResponeType.PARSING_ERROR);
 			} catch (Exception ex) {
@@ -217,7 +231,7 @@ public class NetworkRequestManager {
 				requestListener.onSuccess(response.getResponse());
 				return;
 			}
-			requestListener.onFailure(response.getResponseType(), response.getHttpResponseCode());
+			requestListener.onFailure(response.getResponseType(), response.getHttpResponseCode(), response.getErrorString());
 		}
 	}
 

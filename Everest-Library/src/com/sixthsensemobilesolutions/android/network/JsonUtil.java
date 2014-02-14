@@ -30,6 +30,16 @@ public class JsonUtil {
 		return response;
 	}
 
+	public static <T> T parseAsJson(String jsonString, Class<T> clazz) throws GsonParsingException {
+		T response;
+		try {
+			response = gson.fromJson(jsonString, clazz);
+		} catch (Exception ex) {
+			throw new GsonParsingException(ex.getMessage());
+		}
+		return response;
+	}
+
 	private static InputStreamReader getTheInputStream(boolean isContentEncodingGzip, InputStream inputStream, InputStreamReader inputStreamReader) throws UnsupportedEncodingException, IOException {
 		if (isContentEncodingGzip) {
 			inputStreamReader = new InputStreamReader(new GZIPInputStream(inputStream), "UTF-8");

@@ -1,8 +1,10 @@
 package com.sixthsensemobilesolutions.android.network;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -121,6 +123,7 @@ public class NetworkRequestManager {
 			this.postData = request.getPostData();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		protected BaseResponse<T> doInBackground(Void... params) {
 			URL url = null;
@@ -142,7 +145,8 @@ public class NetworkRequestManager {
 				}
 				httpURLConnection.setReadTimeout(READ_TIME_OUT);
 				httpURLConnection.setConnectTimeout(CONNECT_TIME_OUT);
-				httpURLConnection.setRequestProperty("Content-Type", "application/json");
+				httpURLConnection.setRequestProperty("Content-Type", request.isRequestTypeJson() == true ? "application/json" : "text/html");
+				//				httpURLConnection.setRequestProperty("Content-Type", "application/json");
 				if (request.isBasicAuthNeeded()) {
 					String basicAuth = "Basic " + new String(Base64.encode(getBasicAuthUserNameAndPwdPair(request.getBasicAuthUserName(), request.getBasicAuthPwd()).getBytes(), Base64.NO_WRAP));
 					httpURLConnection.setRequestProperty("Authorization", basicAuth);
@@ -164,10 +168,16 @@ public class NetworkRequestManager {
 				switch (responseCode) {
 				case HttpURLConnection.HTTP_OK: {
 					inputStream = httpURLConnection.getInputStream();
-					@SuppressWarnings("unchecked")
-					T parsedResponse = (T) JsonUtil.parseAsJson(request.isContentTypeGZIP(), inputStream, request.getResponseClass());
+					if (request.isRequestTypeJson()) {
+						@SuppressWarnings("unchecked")
+						T parsedResponse = (T) JsonUtil.parseAsJson(request.isContentTypeGZIP(), inputStream, request.getResponseClass());
+						response.setResponse(parsedResponse);
+					} else {
+						if (request.getResponseClass() == String.class) {
+							response.setResponse((T) convertStreamToString(inputStream));
+						}
+					}
 					response.setResponeType(ResponeType.SUCCESS);
-					response.setResponse(parsedResponse);
 					break;
 				}
 				default:
@@ -237,6 +247,28 @@ public class NetworkRequestManager {
 
 	public String getBasicAuthUserNameAndPwdPair(String userName, String pwd) {
 		return userName + ":" + pwd;
+	}
+
+	private String convertStreamToString(InputStream inputStream) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+		StringBuilder sb = new StringBuilder();
+
+	    String line = null;
+	    try {
+	        while ((line = reader.readLine()) != null) {
+	            sb.append(line + "\n");
+	        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	        	inputStream.close();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    return sb.toString();
 	}
 
 }

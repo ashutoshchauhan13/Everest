@@ -70,5 +70,8 @@ public abstract class BaseRequest<T> {
 	public boolean isHttpsRequest() {
 		return false;
 	}
+	public boolean isRequestTypeJson() {
+		return true;
+	}
 
 }

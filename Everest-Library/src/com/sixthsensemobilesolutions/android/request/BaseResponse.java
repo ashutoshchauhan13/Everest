@@ -1,9 +1,5 @@
 package com.sixthsensemobilesolutions.android.request;
 
-import java.io.InputStream;
-
-import org.apache.http.HttpResponse;
-
 import com.sixthsensemobilesolutions.android.network.NetworkRequestManager.ResponeType;
 
 public class BaseResponse<T> {

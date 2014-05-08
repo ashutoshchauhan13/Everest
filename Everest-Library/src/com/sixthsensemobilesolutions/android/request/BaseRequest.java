@@ -1,5 +1,7 @@
 package com.sixthsensemobilesolutions.android.request;
 
+import java.util.Map;
+
 public abstract class BaseRequest<T> {
 
 	private String mPostData;
@@ -52,6 +54,10 @@ public abstract class BaseRequest<T> {
 		return mPostData;
 	}
 
+	public Map<String, String> getCustomHeader() {
+		return null;
+	}
+
 	/**
 	 * Override this method to supply the post data if you are requesting POST
 	 * HttpMethod
@@ -70,6 +76,7 @@ public abstract class BaseRequest<T> {
 	public boolean isHttpsRequest() {
 		return false;
 	}
+
 	public boolean isRequestTypeJson() {
 		return true;
 	}

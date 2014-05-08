@@ -14,17 +14,14 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-
 import org.apache.commons.io.IOUtils;
-
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
-
 import com.sixthsensemobilesolutions.android.request.BaseRequest;
 import com.sixthsensemobilesolutions.android.request.BaseRequest.HttpMethodType;
 import com.sixthsensemobilesolutions.android.request.BaseResponse;
@@ -81,6 +78,7 @@ public class NetworkRequestManager {
 		return true;
 	}
 
+	@SuppressLint("NewApi")
 	private <T> void submitAsyncRequest(RequestTask<T> requestTask) {
 		if (Build.VERSION.SDK_INT >= 11) {
 			requestTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -146,11 +144,17 @@ public class NetworkRequestManager {
 				httpURLConnection.setReadTimeout(READ_TIME_OUT);
 				httpURLConnection.setConnectTimeout(CONNECT_TIME_OUT);
 				httpURLConnection.setRequestProperty("Content-Type", request.isRequestTypeJson() == true ? "application/json" : "text/html");
-				//				httpURLConnection.setRequestProperty("Content-Type", "application/json");
 				if (request.isBasicAuthNeeded()) {
 					String basicAuth = "Basic " + new String(Base64.encode(getBasicAuthUserNameAndPwdPair(request.getBasicAuthUserName(), request.getBasicAuthPwd()).getBytes(), Base64.NO_WRAP));
 					httpURLConnection.setRequestProperty("Authorization", basicAuth);
 				}
+				if (request.getCustomHeader() != null && !request.getCustomHeader().isEmpty()) {
+					Map<String, String> customHeaderValues = request.getCustomHeader();
+					for (Map.Entry<String, String> entry : customHeaderValues.entrySet()) {
+						httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+					}
+				}
+
 				if (request.getHttpMethodType() == HttpMethodType.POST || request.getHttpMethodType() == HttpMethodType.PUT) {
 					httpURLConnection.setDoInput(true);
 					httpURLConnection.setDoOutput(true);
@@ -169,6 +173,7 @@ public class NetworkRequestManager {
 				case HttpURLConnection.HTTP_OK: {
 					inputStream = httpURLConnection.getInputStream();
 					if (request.isRequestTypeJson()) {
+//						Log.d("mitrader", "inputStream=" + convertStreamToString(inputStream));
 						@SuppressWarnings("unchecked")
 						T parsedResponse = (T) JsonUtil.parseAsJson(request.isContentTypeGZIP(), inputStream, request.getResponseClass());
 						response.setResponse(parsedResponse);
@@ -254,21 +259,21 @@ public class NetworkRequestManager {
 
 		StringBuilder sb = new StringBuilder();
 
-	    String line = null;
-	    try {
-	        while ((line = reader.readLine()) != null) {
-	            sb.append(line + "\n");
-	        }
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    } finally {
-	        try {
-	        	inputStream.close();
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-	    return sb.toString();
+		String line = null;
+		try {
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return sb.toString();
 	}
 
 }
